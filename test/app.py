@@ -1,4 +1,5 @@
 from flask import Flask, request, redirect, render_template, url_for, abort, jsonify
+from datetime import datetime
 
 # In-memory data store (resets when the app restarts).
 transactions = [
@@ -18,22 +19,30 @@ def _next_transaction_id() -> int:
 
 @app.route("/")
 def get_transactions():
+    """Render the list of transactions."""
     return render_template("transactions.html", transactions=transactions)
 
 
 @app.route("/create", methods=["GET", "POST"])
 def add_transaction():
-    # POST saves a new transaction; GET shows the form.
+    """Create a new transaction (GET shows form, POST processes it)."""
     if request.method == "POST":
+        # Validate amount.
         try:
             amount = float(request.form["amount"])
         except (ValueError, TypeError):
-            # Simple validation – in real apps use WTForms.
             return jsonify({"error": "Invalid amount"}), 400
+
+        # Validate date (expects YYYY-MM-DD).
+        date_str = request.form.get("date", "")
+        try:
+            datetime.strptime(date_str, "%Y-%m-%d")
+        except ValueError:
+            return jsonify({"error": "Invalid date format, expected YYYY-MM-DD"}), 400
 
         transaction = {
             "id": _next_transaction_id(),
-            "date": request.form["date"],
+            "date": date_str,
             "amount": amount,
         }
         transactions.append(transaction)
@@ -44,16 +53,24 @@ def add_transaction():
 
 @app.route("/edit/<int:transaction_id>", methods=["GET", "POST"])
 def edit_transaction(transaction_id):
-    # POST updates an existing record; GET loads the edit form.
+    """Edit an existing transaction (GET shows form, POST updates it)."""
     if request.method == "POST":
+        # Validate amount.
         try:
             amount = float(request.form["amount"])
         except (ValueError, TypeError):
             return jsonify({"error": "Invalid amount"}), 400
 
+        # Validate date.
+        date_str = request.form.get("date", "")
+        try:
+            datetime.strptime(date_str, "%Y-%m-%d")
+        except ValueError:
+            return jsonify({"error": "Invalid date format, expected YYYY-MM-DD"}), 400
+
         for transaction in transactions:
             if transaction["id"] == transaction_id:
-                transaction["date"] = request.form["date"]
+                transaction["date"] = date_str
                 transaction["amount"] = amount
                 break
         else:
@@ -61,6 +78,7 @@ def edit_transaction(transaction_id):
 
         return redirect(url_for("get_transactions"))
 
+    # GET – render edit form.
     for transaction in transactions:
         if transaction["id"] == transaction_id:
             return render_template("edit.html", transaction=transaction)
@@ -68,11 +86,18 @@ def edit_transaction(transaction_id):
     abort(404)
 
 
-@app.route("/delete/<int:transaction_id>")
+@app.route("/delete/<int:transaction_id>", methods=["POST"])
 def delete_transaction(transaction_id):
+    """Delete a transaction. Only accepts POST to mitigate CSRF."""
     # Remove the transaction safely without mutating the list during iteration.
-    global transactions
-    transactions = [t for t in transactions if t["id"] != transaction_id]
+    # No `global` needed because we modify the list in place.
+    for i, t in enumerate(transactions):
+        if t["id"] == transaction_id:
+            del transactions[i]
+            break
+    else:
+        abort(404)
+
     return redirect(url_for("get_transactions"))
 
 
