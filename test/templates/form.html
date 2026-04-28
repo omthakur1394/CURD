@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bank Transaction</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
@@ -30,6 +31,7 @@
     <div class="container">
         <h1 class="text-center">Add Transaction</h1>
         <form action="{{ url_for('add_transaction') }}" method="POST">
+            {{ csrf_token() }}
             <div class="form-group">
                 <label for="date">Date:</label>
                 <input type="date" name="date" id="date" class="form-control" required>
@@ -37,7 +39,7 @@
 
             <div class="form-group">
                 <label for="amount">Amount:</label>
-                <input type="number" name="amount" id="amount" class="form-control" required>
+                <input type="number" name="amount" id="amount" class="form-control" step="0.01" min="0" required>
             </div>
 
             <div class="form-footer">
