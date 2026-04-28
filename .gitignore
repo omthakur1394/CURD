@@ -1,3 +1,7 @@
+# -------------------------------------------------
+# .gitignore for Python projects
+# -------------------------------------------------
+
 # Python bytecode and caches
 __pycache__/
 *.py[cod]
@@ -29,6 +33,16 @@ htmlcov/
 instance/
 *.db
 *.sqlite3
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# Log files
+*.log
+
+# Temporary / backup files
+*.tmp
+*.bak
 
 # IDE/editor files
 .vscode/
