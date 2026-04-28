@@ -10,7 +10,7 @@
             color: #333;
         }
 
-        .container {
+        .custom-container {
             border: 2px solid #f6d365;
             border-radius: 15px;
             padding: 20px;
@@ -41,9 +41,10 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container custom-container">
         <h1 class="text-center">Transaction Records</h1>
 
+        {% if transactions %}
         <table class="table transaction-table">
             <thead>
                 <tr>
@@ -59,12 +60,21 @@
                     <td>{{ transaction.amount }}</td>
                     <td class="transaction-actions">
                         <a class="btn btn-sm btn-primary" href="{{ url_for('edit_transaction', transaction_id=transaction.id) }}">Edit</a>
-                        <a class="btn btn-sm btn-danger" href="{{ url_for('delete_transaction', transaction_id=transaction.id) }}">Delete</a>
+
+                        <form method="post" action="{{ url_for('delete_transaction', transaction_id=transaction.id) }}" style="display:inline;">
+                            {{ csrf_token() }}
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this transaction?');">
+                                Delete
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        {% else %}
+            <p class="text-center">No transactions found.</p>
+        {% endif %}
 
         <div class="d-flex justify-content-center">
             <a class="btn btn-success" href="{{ url_for('add_transaction') }}">Add Transaction</a>

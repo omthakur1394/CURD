@@ -11,7 +11,7 @@
             color: #333;
         }
 
-        .container {
+        .transaction-box {
             border: 2px solid #f6d365;
             border-radius: 15px;
             padding: 20px;
@@ -28,7 +28,7 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container transaction-box">
         <h1 class="text-center">Add Transaction</h1>
         <form action="{{ url_for('add_transaction') }}" method="POST">
             {{ csrf_token() }}
@@ -39,7 +39,7 @@
 
             <div class="form-group">
                 <label for="amount">Amount:</label>
-                <input type="number" name="amount" id="amount" class="form-control" step="0.01" min="0" required>
+                <input type="number" name="amount" id="amount" class="form-control" step="0.01" required>
             </div>
 
             <div class="form-footer">
