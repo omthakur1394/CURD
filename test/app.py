@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template, url_for
+from flasssk import Flask, request, redirect, render_template, url_for
 
 # In-memory data store (resets when the app restarts).
 transactions = [
